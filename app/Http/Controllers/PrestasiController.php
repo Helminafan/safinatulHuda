@@ -40,7 +40,7 @@ class PrestasiController extends Controller
     {
         $user = new prestasi();
         if ($request->hasFile('foto_prestasi')) {
-            $foto=$request->file('foto_prestasi')->store('fotoPrestasi');
+            $foto=$request->file('foto_prestasi')->store('fotoPrestasi','cpanel_public');
         }
        
         $user->judul_prestasi           = $request->judul_prestasi;
@@ -84,7 +84,7 @@ class PrestasiController extends Controller
     {
         $user = prestasi::find($id);
         if ($request->hasFile('foto_prestasi')) {
-            $foto=$request->file('foto_prestasi')->store('fotoPrestasi');
+            $foto=$request->file('foto_prestasi')->store('fotoPrestasi','cpanel_public');
             $user->foto_prestasi            = $foto;
         }
        

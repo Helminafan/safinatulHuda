@@ -39,7 +39,7 @@ class VidioController extends Controller
     {
         $user = new vidio();
         if ($request->hasFile('thumbnail')) {
-            $foto=$request->file('thumbnail')->store('thumbnail');
+            $foto=$request->file('thumbnail')->store('thumbnail','cpanel_public');
             $user->thumbnail = $foto;
         }
        
@@ -84,7 +84,7 @@ class VidioController extends Controller
     {
         $user = vidio::find($id);
         if ($request->hasFile('thumbnail')) {
-            $foto=$request->file('thumbnail')->store('thumbnail');
+            $foto=$request->file('thumbnail')->store('thumbnail','cpanel_public');
             $user->thumbnail            = $foto;
         }
         $user->judul_vidio           = $request->judul_vidio;

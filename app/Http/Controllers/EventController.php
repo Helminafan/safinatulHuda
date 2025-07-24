@@ -46,7 +46,7 @@ class EventController extends Controller
     {
         $user = new event();
         if ($request->hasFile('foto_event')) {
-            $foto=$request->file('foto_event')->store('fotoevent');
+            $foto=$request->file('foto_event')->store('fotoevent','cpanel_public');
             
         }
         $user->judul_event           = $request->judul_event;
@@ -99,7 +99,7 @@ class EventController extends Controller
     {
         $user = event::find($id);
         if ($request->hasFile('foto_event')) {
-            $foto=$request->file('foto_event')->store('fotoevent');
+            $foto=$request->file('foto_event')->store('fotoevent','cpanel_public');
             $user->foto_event            = $foto;
         }
         $user->judul_event           = $request->judul_event;

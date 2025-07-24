@@ -39,9 +39,25 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
+        ],
+        
+        'public_html' => [
+            'driver' => 'local',
+            'root' => base_path('../public_html'), 
+            'url' => env('APP_URL'),
+            'visibility' => 'public',
+        ],
+
+         'cpanel_public' => [
+            'driver' => 'local',
+            'root' => base_path('../public_html/storage'), // akan mengarah ke public_html/storage
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
         ],
 
         's3' => [
