@@ -1,16 +1,13 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VidioController;
-use App\Models\event;
-use App\Models\pendaftaran;
-use App\Models\prestasi;
-use App\Models\vidio;
-use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +44,9 @@ Route::get('/event/blog/{id}', [UserController::class, 'blog'])->name('blog.user
 Route::get('/prestasi', [UserController::class, 'prestasi'])->name('user.prestasi');
 Route::get('/pendafataran', [PendaftaranController::class, 'create'])->name('user.pendaftaran');
 Route::post('/store/pendaftaran', [PendaftaranController::class, 'store'])->name('store.pendaftaran');
+Route::get('/produk', [UserController::class, 'produk'])->name('produk.user');
+Route::get('/produk/detail/{id}', [UserController::class, 'detailproduk'])->name('produk.detail');
+Route::post('/produk/komentar/{id}', [UserController::class, 'create_komentar'])->name('produk.komentar');
 
 
 
@@ -55,38 +55,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified'
 ])->group(function () {
-    Route::get('/dashboard', function () {
-
-        $pendaftar = pendaftaran::count();
-        $vidio = vidio::count();
-        $event = event::count();
-        $prestasi = prestasi::count();
-        $year = pendaftaran::select(DB::raw("YEAR(created_at) as year"))
-            ->pluck('year');
-        $bulan = pendaftaran::select(DB::raw("MONTHNAME(created_at) as bulan"))
-            ->where(DB::raw('YEAR(created_at)'), '=', '2023')
-            ->pluck('bulan');
-        $pendaftaran = pendaftaran::select(DB::raw("CAST(COUNT(*) as int) as pendaftar"))
-            ->where(DB::raw('YEAR(created_at)'), '=', '2023')
-            ->GroupBy(DB::raw("Month(created_at)"))
-            ->OrderBY(DB::raw("Month(created_at)"))
-            ->pluck('pendaftar');
-
-            $results = DB::table('pendaftaran')
-            ->select(DB::raw("DATE_FORMAT(created_at, '%M') AS nama_bulan"),
-                     DB::raw("DATE_FORMAT(created_at, '%Y') AS tahun"),
-                     DB::raw("COUNT(*) AS daftar"))
-            ->groupBy(DB::raw("DATE_FORMAT(created_at, '%M'), DATE_FORMAT(created_at, '%Y')"))
-            ->orderBy('created_at')
-            ->get();
-        $datavidio = vidio::select(DB::raw("COUNT(*) as jumlah"))
-            ->count();
-        $dataevent = event::select(DB::raw("COUNT(*) as jumlah"))
-            ->count();
-        $dataprestasi = prestasi::select(DB::raw("COUNT(*) as jumlah"))
-            ->count();
-        return view('admin.dashboard ', compact('year','pendaftar', 'vidio', 'event', 'prestasi', 'bulan', 'pendaftaran', 'datavidio', 'dataevent', 'dataprestasi','results'));
-    })->name('dashboard');
+    Route::get('/dashboard',[DashboardController::class,'dashboard'])->name('dashboard');
 });
 
 Route::group(['prefix' => 'prestasi', 'middleware' => ['auth:sanctum', config('jetstream.auth_session'), 'verified']], function () {
@@ -119,5 +88,16 @@ Route::group(['prefix' => 'pendaftaran', 'middleware' => ['auth:sanctum', config
     Route::get('/detail/{id}', [PendaftaranController::class, 'show'])->name('show_pendaftaran');
     Route::get('/reset', [PendaftaranController::class, 'reset'])->name('reset');
     Route::get('/delete/{id}', [PendaftaranController::class, 'destroy'])->name('delete.pendaftaran');
+});
+Route::group(['prefix' => 'produk', 'middleware' => ['auth:sanctum', config('jetstream.auth_session'), 'verified']], function () {
+    Route::get('/view', [\App\Http\Controllers\ProdukController::class, 'index'])->name('produk.index');
+    Route::get('/add', [\App\Http\Controllers\ProdukController::class, 'create'])->name('produk.create');
+    Route::post('/store', [\App\Http\Controllers\ProdukController::class, 'store'])->name('produk.store');
+    Route::get('/edit/{id}', [\App\Http\Controllers\ProdukController::class, 'edit'])->name('produk.edit');
+    Route::post('/update/{id}', [\App\Http\Controllers\ProdukController::class, 'update'])->name('produk.update');
+    Route::get('/delete/{id}', [\App\Http\Controllers\ProdukController::class, 'destroy'])->name('produk.delete');
+    Route::delete('/gambar/{id}', [\App\Http\Controllers\ProdukController::class, 'destroyImage'])->name('produk.gambar.delete');
+    Route::get('/diskon/{id}', [\App\Http\Controllers\ProdukController::class, 'diskon'])->name('produk.diskon');
+    Route::post('/diskon/store/{id}', [\App\Http\Controllers\ProdukController::class, 'storeDiskon'])->name('produk.diskon.store');
 });
 Route::get('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout')->middleware('auth');

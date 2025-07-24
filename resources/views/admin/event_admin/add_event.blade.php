@@ -41,9 +41,6 @@
                         <label for="berota">Berita</label>
                         <textarea class="form-control  @error('berita') is-invalid @enderror" id="exampleFormControlTextarea1" name="berita" rows="3"></textarea>
                     </div>
-
-
-
                     
                 </div>
 

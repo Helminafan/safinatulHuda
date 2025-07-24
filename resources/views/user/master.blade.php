@@ -94,7 +94,7 @@
             checkSection();
         });
     </script>
-     
+    @stack('js')
 </body>
 
 </html>

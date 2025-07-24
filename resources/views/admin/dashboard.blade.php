@@ -96,7 +96,7 @@
                         <h6 class="m-0 font-weight-bold text-success">Jumlah Pendaftaran</h6>
                         <select class="custom-select" id="tahun" onchange="updateChart()">
                             @foreach ($year as $item)
-                                <option value="{{$item}}">{{$item}}</option>
+                                <option value="{{ $item }}">{{ $item }}</option>
                             @endforeach
                         </select>
                         <div class="dropdown no-arrow">
@@ -108,7 +108,7 @@
                                 aria-labelledby="dropdownMenuLink">
                                 <div class="dropdown-header">Tahun</div>
                                 <a class="dropdown-item" href="#">Action</a>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -168,7 +168,7 @@
     </div>
 @endsection
 @push('js')
-    <script type="text/javascript">
+    <script>
         // Set new default font family and font color to mimic Bootstrap's default styling
         Chart.defaults.global.defaultFontFamily = 'Nunito',
             '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
@@ -179,7 +179,7 @@
         var vidio = <?php echo json_encode($datavidio); ?>;
         var event = <?php echo json_encode($dataevent); ?>;
         var prestasi = <?php echo json_encode($dataprestasi); ?>;
-        console.log(vidio);
+        
         var myPieChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -211,123 +211,98 @@
         });
     </script>
     <script>
-        // Set new default font family and font color to mimic Bootstrap's default styling
-        Chart.defaults.global.defaultFontFamily = 'Nunito',
-            '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-        Chart.defaults.global.defaultFontColor = '#858796';
+    Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+    Chart.defaults.global.defaultFontColor = '#858796';
 
-        function number_format(number, decimals, dec_point, thousands_sep) {
-            // *     example: number_format(1234.56, 2, ',', ' ');
-            // *     return: '1 234,56'
-            // number = (number + '').replace(',', '').replace(' ', '');
-            var n = !isFinite(+number) ? 0 : +number,
-                prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
-                sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
-                dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
-                s = '',
-                toFixedFix = function(n, prec) {
-                    var k = Math.pow(10, prec);
-                    return '' + Math.round(n * k) / k;
-                };
-            // Fix for IE parseFloat(0.55).toFixed(0) = 0;
-            s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
-            if (s[0].length > 3) {
-                s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
-            }
-            if ((s[1] || '').length < prec) {
-                s[1] = s[1] || '';
-                s[1] += new Array(prec - s[1].length + 1).join('0');
-            }
-            return s.join(dec);
+    function number_format(number, decimals = 0, dec_point = '.', thousands_sep = ',') {
+        var n = isNaN(+number) ? 0 : +number,
+            prec = Math.abs(decimals),
+            sep = thousands_sep,
+            dec = dec_point;
+        var s = n.toFixed(prec).split('.');
+        s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+        if ((s[1] || '').length < prec) {
+            s[1] = (s[1] || '') + '0'.repeat(prec - s[1].length);
+        }
+        return s.join(dec);
+    }
+
+    const allData = @json($results);
+    let myBarChart;
+
+    function updateChart() {
+        const selectedYear = document.getElementById('tahun').value;
+        const filteredData = allData.filter(item => item.tahun == selectedYear);
+        const ctx = document.getElementById("myBarChart").getContext('2d');
+
+        // Destroy chart if it already exists
+        if (myBarChart) {
+            myBarChart.destroy();
         }
 
-        // Bar Chart Example
-        function updateChart() {
-            var data = <?php echo json_encode($results); ?>;
-            var selectedYear = document.getElementById('tahun').value;
-            var filteredData = data.filter(item => item.tahun == selectedYear);
-            var ctx = document.getElementById("myBarChart");
-            // var pendapatan = <?php echo json_encode($pendaftaran); ?>;
-            // var bulan = <?php echo json_encode($bulan); ?>;
-            var myBarChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: filteredData.map(item => item.nama_bulan),
-                    datasets: [{
-                        label: "Revenue",
-                        backgroundColor: "#4e73df",
-                        hoverBackgroundColor: "#2e59d9",
-                        borderColor: "#4e73df",
-                        data: filteredData.map(item => item.daftar),
+        myBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: filteredData.map(item => item.nama_bulan),
+                datasets: [{
+                    label: "Jumlah Pendaftar",
+                    backgroundColor: "#4e73df",
+                    hoverBackgroundColor: "#2e59d9",
+                    borderColor: "#4e73df",
+                    data: filteredData.map(item => item.daftar),
+                     maxBarThickness: 25,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10, right: 25, top: 25, bottom: 0
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: { display: false, drawBorder: false },
+                        ticks: { maxTicksLimit: 12 },
+                       
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            callback: function(value) {
+                                return number_format(value);
+                            }
+                        },
+                        gridLines: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
                     }],
                 },
-                options: {
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: {
-                            left: 10,
-                            right: 25,
-                            top: 25,
-                            bottom: 0
+                legend: { display: false },
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15, yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                    callbacks: {
+                        label: function(tooltipItem, chart) {
+                            return 'Jumlah Pendaftar: ' + number_format(tooltipItem.yLabel);
                         }
-                    },
-                    scales: {
-                        xAxes: [{
-                            time: {
-                                unit: 'month'
-                            },
-                            gridLines: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                maxTicksLimit: 6
-                            },
-                            maxBarThickness: 25,
-                        }],
-                        yAxes: [{
-                            ticks: {
-                                maxTicksLimit: 5,
-                                padding: 10,
-                                // Include a dollar sign in the ticks
-                                callback: function(value, index, values) {
-                                    return number_format(value);
-                                }
-                            },
-                            gridLines: {
-                                color: "rgb(234, 236, 244)",
-                                zeroLineColor: "rgb(234, 236, 244)",
-                                drawBorder: false,
-                                borderDash: [2],
-                                zeroLineBorderDash: [2]
-                            }
-                        }],
-                    },
-                    legend: {
-                        display: false
-                    },
-                    tooltips: {
-                        titleMarginBottom: 10,
-                        titleFontColor: '#6e707e',
-                        titleFontSize: 14,
-                        backgroundColor: "rgb(255,255,255)",
-                        bodyFontColor: "#858796",
-                        borderColor: '#dddfeb',
-                        borderWidth: 1,
-                        xPadding: 15,
-                        yPadding: 15,
-                        displayColors: false,
-                        caretPadding: 10,
-                        callbacks: {
-                            label: function(tooltipItem, chart) {
-                                var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                                return datasetLabel + number_format(tooltipItem.yLabel);
-                            }
-                        }
-                    },
+                    }
                 }
-            });
-        }
-        document.addEventListener('DOMContentLoaded', updateChart);
-    </script>
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', updateChart);
+</script>
+
 @endpush

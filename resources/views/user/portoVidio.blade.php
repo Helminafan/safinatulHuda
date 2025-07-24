@@ -5,7 +5,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h6>Here are our upcoming</h6>
+                    <h6>Here are our Vidio</h6>
                     <h2>Vidio</h2>
                 </div>
             </div>

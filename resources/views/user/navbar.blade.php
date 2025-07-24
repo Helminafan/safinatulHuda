@@ -25,7 +25,7 @@
                                 <li><a href="{{ route('portoVidio.user') }}">Vidio</a></li>
                             </ul>
                         </li>
-                        <li class=""><a href="{{route('dashboard.user')}}#courses">Sarana Dan Prasarana</a></li>
+                        <li class=""><a href="{{route('produk.user')}}">Produk</a></li>
                         <li class=""><a href="{{route('dashboard.user')}}#contact">Contact Us</a></li>
                     </ul>
                     <a class="menu-trigger">
