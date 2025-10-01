@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\event;
 use App\Models\KomenGambar;
 use App\Models\KomentProduk;
+use App\Models\Pengumuman;
 use App\Models\prestasi;
 use App\Models\vidio;
 use Illuminate\Http\Request;
@@ -21,7 +22,8 @@ class UserController extends Controller
     public function dashboard()
     {
         $foto_prestasi = prestasi::orderBy('created_at', 'desc')->take(4)->get();
-        return view('user.dashboard', compact('foto_prestasi'));
+        $pengumuman = Pengumuman::all();
+        return view('user.dashboard', compact('foto_prestasi', 'pengumuman'));
     }
     public function event()
     {
@@ -60,16 +62,17 @@ class UserController extends Controller
             'komentar' => 'required|string',
             'email_pengguna' => 'nullable|email|max:255',
             'rating' => 'required|integer|min:0|max:5',
+            'foto_komentar.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
         $komentar = new \App\Models\KomentProduk();
         $komentar->produk_id = $id;
         $komentar->nama_pengguna = $request->nama_pengguna;
         $komentar->komentar = $request->komentar;
         $komentar->email_pengguna = $request->email_pengguna;
         $komentar->rating = $request->rating;
-        $komentar->is_verified = false; // Default to false, can be updated later
+        $komentar->is_verified = false;
         $komentar->tanggal_komentar = now();
-
         $komentar->save();
 
         if ($request->hasFile('foto_komentar')) {
@@ -77,15 +80,15 @@ class UserController extends Controller
                 if ($gambar && $gambar->isValid()) {
                     $gambarKoment = new KomenGambar();
                     $imageName = time() . '_' . $gambar->getClientOriginalName();
-                    $gambar->move(public_path('images/koment'), $imageName);
-                    $gambarKoment->foto_komentar = 'images/koment/' . $imageName;
+                    // Simpan ke storage/app/public/koment
+                    $path = $gambar->storeAs('koment', $imageName, 'cpanel_public');
+                    // Simpan path ke database
+                    $gambarKoment->foto_komentar = $path;
                     $gambarKoment->komen_id = $komentar->id;
                     $gambarKoment->save();
                 }
             }
         }
-
-
 
         return redirect()->back()->with('success', 'Komentar berhasil ditambahkan.');
     }

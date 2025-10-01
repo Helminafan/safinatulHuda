@@ -30,7 +30,7 @@
                                                     <div class="image-wrapper">
                                                         <a href="{{ route('produk.detail', $row->id) }}">
                                                             <img style="object-fit: cover; height: 400px;"
-                                                                src="{{ asset($row->gambar_produk) }}" alt="thumbnail">
+                                                                src="{{ asset('storage/'.$row->gambar_produk) }}" alt="thumbnail">
                                                         </a>
                                                         @if ($adaDiskon)
                                                             

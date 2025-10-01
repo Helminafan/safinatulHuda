@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProdukController extends Controller
 {
@@ -19,18 +20,18 @@ class ProdukController extends Controller
     }
     public function store(Request $request)
     {
-        
+
         $request->validate([
             'judul_produk' => 'required|string|max:255',
             'gambar_produk' => 'nullable|image|max:2048', // gambar utama
             'gambar_produk_lain.*' => 'nullable|image|max:2048', // multiple images
-            'harga' => 'required', 
+            'harga' => 'required',
             'deskripsi_produk' => 'nullable|string',
             'berat' => 'required|integer',
         ]);
 
-       $harga = preg_replace('/[^\d]/', '', $request->harga);
-       
+        $harga = preg_replace('/[^\d]/', '', $request->harga);
+
 
         $produk = new \App\Models\Produk();
         $produk->judul_produk = $request->judul_produk;
@@ -42,9 +43,9 @@ class ProdukController extends Controller
         // Upload gambar utama jika ada
         if ($request->hasFile('gambar_produk')) {
             $image = $request->file('gambar_produk');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/produk'), $imageName);
-            $produk->gambar_produk = 'images/produk/' . $imageName;
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $path = $image->storeAs('images/produk', $imageName, 'cpanel_public');
+            $produk->gambar_produk = $path;
         }
 
         // Simpan produk terlebih dahulu untuk mendapatkan ID
@@ -52,10 +53,11 @@ class ProdukController extends Controller
 
         if ($request->hasFile('gambar_produk_lain')) {
             foreach ($request->file('gambar_produk_lain') as $gambar) {
-                $gambarProduk = new \App\Models\GambarProduct();
                 $imageName = time() . '_' . $gambar->getClientOriginalName();
-                $gambar->move(public_path('images/produk'), $imageName);
-                $gambarProduk->gambar = 'images/produk/' . $imageName;
+                $path = $gambar->storeAs('images/produk', $imageName, 'cpanel_public');
+
+                $gambarProduk = new \App\Models\GambarProduct();
+                $gambarProduk->gambar = $path;
                 $gambarProduk->produk_id = $produk->id;
                 $gambarProduk->save();
             }
@@ -75,73 +77,106 @@ class ProdukController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validate the request data
+        // Validasi data
         $request->validate([
             'judul_produk' => 'required|string|max:255',
-            'gambar_produk' => 'nullable|max:2048',
+            'gambar_produk' => 'nullable|image|max:2048',
+            'gambar_produk_lain.*' => 'nullable|image|max:2048',
             'deskripsi_produk' => 'nullable|string',
             'harga' => 'required',
             'berat' => 'required|integer',
-
         ]);
+
         $harga = preg_replace('/[^\d]/', '', $request->harga);
-        // Fetch the product to update
+
+        // Ambil produk
         $produk = \App\Models\Produk::findOrFail($id);
-        // Update the product details
+
+        // Update data produk
         $produk->judul_produk = $request->judul_produk;
         $produk->harga = (int) $harga;
         $produk->deskripsi_produk = $request->deskripsi_produk;
         $produk->berat = $request->berat;
         $produk->status_produk = $request->status_produk;
-        // Handle the image upload if provided
+
+        // Update gambar utama jika ada
         if ($request->hasFile('gambar_produk')) {
-            // Delete the old image if it exists
-            if ($produk->gambar_produk && file_exists(public_path($produk->gambar_produk))) {
-                unlink(public_path($produk->gambar_produk));
+            // Hapus gambar lama
+            if ($produk->gambar_produk && Storage::disk('cpanel_public')->exists($produk->gambar_produk)) {
+                Storage::disk('cpanel_public')->delete($produk->gambar_produk);
             }
-            // Upload the new image
+
+            // Simpan gambar baru
             $image = $request->file('gambar_produk');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/produk'), $imageName);
-            $produk->gambar_produk = 'images/produk/' . $imageName;
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $path = $image->storeAs('images/produk', $imageName, 'cpanel_public');
+            $produk->gambar_produk = $path;
         }
+
+        // Update gambar produk lain jika ada
         if ($request->hasFile('gambar_produk_lain')) {
+            // Hapus semua gambar lama
             $gambarLama = \App\Models\GambarProduct::where('produk_id', $produk->id)->get();
             foreach ($gambarLama as $g) {
-                if (file_exists(public_path($g->gambar))) {
-                    @unlink(public_path($g->gambar));
+                if (Storage::disk('cpanel_public')->exists($g->gambar)) {
+                    Storage::disk('cpanel_public')->delete($g->gambar);
                 }
                 $g->delete();
             }
+
+            // Simpan gambar baru
             foreach ($request->file('gambar_produk_lain') as $gambar) {
-                $gambarProduk = new \App\Models\GambarProduct();
                 $imageName = time() . '_' . $gambar->getClientOriginalName();
-                $gambar->move(public_path('images/produk'), $imageName);
-                $gambarProduk->gambar = 'images/produk/' . $imageName;
+                $path = $gambar->storeAs('images/produk', $imageName, 'cpanel_public');
+
+                $gambarProduk = new \App\Models\GambarProduct();
+                $gambarProduk->gambar = $path;
                 $gambarProduk->produk_id = $produk->id;
                 $gambarProduk->save();
             }
         }
+
         $produk->save();
-        // Redirect to the product index with a success message
+
         return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui.');
     }
     public function destroy($id)
     {
-        // Fetch the product to delete
+        // Ambil produk
         $produk = \App\Models\Produk::findOrFail($id);
-        // Delete the product
+
+        // Hapus gambar utama jika ada
+        if ($produk->gambar_produk && Storage::disk('cpanel_public')->exists($produk->gambar_produk)) {
+            Storage::disk('cpanel_public')->delete($produk->gambar_produk);
+        }
+
+        // Hapus semua gambar tambahan
+        $gambarLain = \App\Models\GambarProduct::where('produk_id', $produk->id)->get();
+        foreach ($gambarLain as $g) {
+            if (Storage::disk('cpanel_public')->exists($g->gambar)) {
+                Storage::disk('cpanel_public')->delete($g->gambar);
+            }
+            $g->delete();
+        }
+
+        // Hapus produk
         $produk->delete();
-        // Redirect to the product index with a success message
+
         return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus.');
     }
+
     public function destroyImage($id)
     {
         $gambar = \App\Models\GambarProduct::findOrFail($id);
-        if (file_exists(public_path($gambar->gambar))) {
-            @unlink(public_path($gambar->gambar));
+
+        // Hapus file fisik jika ada
+        if ($gambar->gambar && Storage::disk('cpanel_public')->exists($gambar->gambar)) {
+            Storage::disk('cpanel_public')->delete($gambar->gambar);
         }
+
+        // Hapus data di DB
         $gambar->delete();
+
         return back()->with('success', 'Gambar berhasil dihapus.');
     }
     public function diskon($id)
@@ -158,5 +193,5 @@ class ProdukController extends Controller
         $produk->diskon = $request->diskon;
         $produk->save();
         return redirect()->route('produk.index')->with('success', 'Diskon berhasil ditambahkan.');
-    }   
+    }
 }

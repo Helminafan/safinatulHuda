@@ -5,7 +5,7 @@
 @section('admin')
     <form class="user" method="POST" action="{{ route('produk.update', $produk->id) }}" enctype="multipart/form-data">
         @csrf
-        @method('PUT')
+
 
         <div class="container-fluid">
 
@@ -76,7 +76,7 @@
                     <div class="form-group">
                         <label>Gambar Utama</label><br>
                         @if ($produk->gambar_produk)
-                            <img src="{{ asset($produk->gambar_produk) }}" class="img-thumbnail mb-2"
+                            <img src="{{ asset('storage/'.$produk->gambar_produk) }}" class="img-thumbnail mb-2"
                                 style="max-width:150px">
                         @endif
                         <input type="file" accept="image/*" name="gambar_produk"
@@ -99,7 +99,7 @@
                         @foreach ($produk->gambarProduk as $g)
                             <div class="row align-items-center mb-3">
                                 <div class="col-auto">
-                                    <img src="{{ asset($g->gambar) }}" class="img-thumbnail" style="max-width:120px">
+                                    <img src="{{ asset('storage/'.$g->gambar) }}" class="img-thumbnail" style="max-width:120px">
                                 </div>
                                 <div class="col">
                                     <a href="{{ route('produk.gambar.delete', $g->id) }}" class="btn btn-danger btn-sm"

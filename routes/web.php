@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PendaftaranController;
+use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VidioController;
@@ -73,6 +74,14 @@ Route::group(['prefix' => 'vidio', 'middleware' => ['auth:sanctum', config('jets
     Route::get('/edit/{id}', [VidioController::class, 'edit'])->name('edit.vidio_admin');
     Route::post('/update/{id}', [VidioController::class, 'update'])->name('update.vidio_admin');
     Route::get('/delete/{id}', [VidioController::class, 'destroy'])->name('delete.vidio_admin');
+});
+Route::group(['prefix' => 'pengumuman', 'middleware' => ['auth:sanctum', config('jetstream.auth_session'), 'verified']], function () {
+    Route::get('/view', [PengumumanController::class, 'index'])->name('pengumuman');
+    Route::get('/add', [PengumumanController::class, 'create'])->name('add.pengumuman');
+    Route::post('/store', [PengumumanController::class, 'store'])->name('store.pengumuman');
+    Route::get('/edit/{id}', [PengumumanController::class, 'edit'])->name('edit.pengumuman');
+    Route::post('/update/{id}', [PengumumanController::class, 'update'])->name('update.pengumuman');
+    Route::get('/delete/{id}', [PengumumanController::class, 'destroy'])->name('delete.pengumuman');
 });
 Route::group(['prefix' => 'event', 'middleware' => ['auth:sanctum', config('jetstream.auth_session'), 'verified']], function () {
     Route::get('/view', [EventController::class, 'index'])->name('event_admin');

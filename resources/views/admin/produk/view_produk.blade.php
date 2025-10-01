@@ -38,7 +38,7 @@
                             @foreach ($produk as $item => $row)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="text-center"><img src="{{asset($row->gambar_produk)}}"  width="70px" alt=""></td>
+                                    <td class="text-center"><img src="{{asset('storage/'.$row->gambar_produk)}}"  width="70px" alt=""></td>
                                     <td class="text-center">{{ $row->judul_produk }}</td>
                                     <td class="text-center">{{ $row->berat }}</td>
                                     <td class="text-center">{{ $row->status_produk }}</td>

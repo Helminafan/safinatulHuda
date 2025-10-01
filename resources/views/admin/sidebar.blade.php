@@ -32,6 +32,12 @@
 
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="{{route('pengumuman')}}">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Pengumuman Sekolah</span></a>
+
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="{{route('view_pendaftaran')}}">
             <i class="fas fa-fw fa-wrench"></i>
             <span>Pendaftaran</span></a>

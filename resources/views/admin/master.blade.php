@@ -44,7 +44,6 @@
             <div id="content">
 
                 <!-- Topbar -->
-               
                 <!-- End of Topbar -->
                 @include('admin.header')
                 <!-- Begin Page Content -->

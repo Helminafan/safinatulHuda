@@ -34,7 +34,8 @@
                         @foreach ($foto_prestasi as $item => $row)
                             <div class="item">
                                 <div class="down-content">
-                                    <img width="30px"  src="{{ asset('storage/' . $row->foto_prestasi) }}" alt="thumbnail" />
+                                    <img width="30px" src="{{ asset('storage/' . $row->foto_prestasi) }}"
+                                        alt="thumbnail" />
                                 </div>
                             </div>
                         @endforeach
@@ -43,6 +44,48 @@
             </div>
         </div>
     </section>
+    <section class="contact-us">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section-heading">
+                        <h2>Pengumuman</h2>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @foreach ($pengumuman as $index => $item)
+                                <div class="carousel-item {{ $index == 0 ? 'active' : '' }} pengumuman"
+                                    style="text-align: center">
+                                    <h4 class="mb-5" style="color: rgb(255, 255, 255);">
+                                        {{ $item->judul_pengumuman }}
+                                    </h4>
+                                    <p style="color: rgb(255, 255, 255); font-size: 18px">
+                                        "{{ $item->isi_pengumuman }}"
+                                    </p>
+                                </div>
+                            @endforeach
+
+                        </div>
+
+
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- about -->
     <section class="upcoming-meetings" id="about">
         <div class="container">
@@ -156,12 +199,12 @@
                                                 </div>
                                             </div>
                                             <!-- <div class="col-md-6">
-                                                                              <div class="tab-carousel">
-                                                                                <div class="item"><img src="assets/images/course-01.jpg" alt="" /></div>
-                                                                                <div class="item"><img src="assets/images/course-03.jpg" alt="" /></div>
-                                                                                <div class="item"><img src="assets/images/course-04.jpg" alt="" /></div>
-                                                                              </div>
-                                                                            </div> -->
+                                                                                                  <div class="tab-carousel">
+                                                                                                    <div class="item"><img src="assets/images/course-01.jpg" alt="" /></div>
+                                                                                                    <div class="item"><img src="assets/images/course-03.jpg" alt="" /></div>
+                                                                                                    <div class="item"><img src="assets/images/course-04.jpg" alt="" /></div>
+                                                                                                  </div>
+                                                                                                </div> -->
                                         </div>
 
                                         <!-- End Carousel-->

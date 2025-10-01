@@ -1695,6 +1695,11 @@ section.contact-us .right-info {
     border-radius: 20px;
     padding: 40px;
 }
+section.contact-us .pengumuman {
+    background-color: #7ec13f;
+    border-radius: 20px;
+    padding: 40px;
+}
 
 section.contact-us .right-info ul li {
     display: inline-block;
